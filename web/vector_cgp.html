@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Vector CGP</title>
+
+        <script async type="application/dart" src="cgp/core.dart"></script>
+        <script async src="packages/browser/dart.js"></script>
+
+        <link rel="stylesheet" href="styles/vector_cgp.css">
+
+
+        <script src="packages/browser/dart.js"></script>
+
+        <script type="text/javascript" src="libs/jquery-1.11.2.min.js"></script>
+        <script>
+            //TODO to utils.js
+            disable = function (id) {
+                $("#" + id).attr('disabled', 'disabled');
+            };
+            enable = function (id) {
+                $("#" + id).removeAttr('disabled');
+            };
+
+//            draw2 = function (num) {
+//                //            $(svg).css({width: cX, height: cY});
+//                //            svg.width = cX;
+//                //            svg.height = cY;
+//                //            var logbox2 = $("#logbox2");
+//                //            logbox2.innerHTML = "";
+////                var svg = $("#svg"+num);
+////                $(svg).empty();
+//                var wrap = $("#wrap" + num);
+//                $(wrap).empty();
+//                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+//                $(svg).attr({version: '1.1', xmlns: "http://www.w3.org/2000/svg", width: 256, height: 256});
+//                drawnObjNum = $("#objectNumSelct option:selected").val();
+//
+//                var i = 0, j = 0, iInc, jInc, jMul;
+//                jMul = parseInt($("#yMulIn").val());
+//                var rotate = $("#rotateCheck").prop("checked");
+//                var gray = $("#grayCheck").prop("checked");
+////                if (!Number.isInteger(jMul) || jMul < 0 || jMul > 32) {
+////                    $("#jMulIn").focus();
+////                    return;
+////                }
+////                    drawnObjNum = 3;
+//                if (drawnObjNum < 256)
+//                    iInc = Math.floor(256 / drawnObjNum);
+//
+//                else
+//                    iInc = 1;
+//                jInc = (iInc * jMul) % 256;
+////                        jInc = (jMul * (32 / Math.floor(drawnObjNum / 256))) % 256;
+////                        jInc  = (iInc * jMul)%256;
+////                        jInc = (jMul * Math.floor(drawnObjNum / 256)) % 256;
+//
+//                for (var n = 0; n < drawnObjNum; n++) {
+//
+//                    var x = Math.abs(Math.floor(getX(i, j)));
+//                    var y = Math.abs(Math.floor(getY(i, j)));
+//                    var sx = Math.abs(Math.floor(getXSize(i, j)));
+//                    var sy = Math.abs(Math.floor(getYSize(i, j)));
+//                    var red = Math.abs(Math.floor(getRed(i, j)));
+//                    var green, blue;
+//                    if (gray) {
+//                        green = red;
+//                        blue = red;
+//                    } else {
+//                        green = Math.abs(Math.floor(getGreen(i, j)));
+//                        blue = Math.abs(Math.floor(getBlue(i, j)));
+//                    }
+//                    var shape = Math.abs(getShape(i, j) % 3);
+//                    var color = "rgb(" + red + "," + green + "," + blue + ")";
+//                    var angle = Math.abs(Math.floor(getRotation(i, j) * 360 / 256));
+//                    var transform = "";
+//                    if (rotate)
+//                        transform = "rotate(" + angle + " " + Math.floor((x + sx) / 2) + " " + Math.floor((y + sy) / 2) + ")";
+//                    //                logbox2.innerHTML += i+": x"+x+" y:"+y+" sx:"+sx+" sy:"+sy+" shp:"+shape+" col:"+color+"<br>";
+//                    if (shape < 1.5)
+//                        drawRectangle(svg, x, y, sx, sy, color, transform);
+//                    else
+//                        drawEllipse(svg, x, y, sx, sy, color, transform);
+//
+//                    var i = (i + iInc) % 256;
+//                    var j = (j + jInc) % 256;
+//                }
+////                wrap.append(svg);
+//                wrap.append(encode_as_img_and_link(svg));
+//
+//            };
+            var svgStrings = new Array(9);
+            var zoomedIn;
+            var speedDescs = ["minimální", "malá", "střední", "velká", "maximální"];
+            var JMUL = 3;
+
+            draw = function (num) {
+                //            $(svg).css({width: cX, height: cY});
+                //            svg.width = cX;
+                //            svg.height = cY;
+                //            var logbox2 = $("#logbox2");
+                //            logbox2.innerHTML = "";
+//                var svg = $("#svg"+num);
+//                $(svg).empty();
+                var wrap = $("#innerWrap" + num);
+                $(wrap).empty();
+                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                $(svg).attr({version: '1.1', xmlns: "http://www.w3.org/2000/svg", width: 256, height: 256});
+
+                svgStrings[num] = "<svg id='svg" + num + "' version='1.1' xmlns='http://www.w3.org/2000/svg' width=256 height=256 viewBox='0 0 256 256'>";
+                drawnObjNum = $("#objectNumSelct option:selected").val();
+
+                var i = 0, j = 0, iInc, jInc, jMul;
+//                jMul = parseInt($("#yMulIn").val());
+                var rotate = $("#rotateCheck").prop("checked");
+                var gray = $("#grayCheck").prop("checked");
+//                if (!Number.isInteger(jMul) || jMul < 0 || jMul > 32) {
+//                    $("#jMulIn").focus();
+//                    return;
+//                }
+//                    drawnObjNum = 3;
+                if (drawnObjNum < 256)
+                    iInc = Math.floor(256 / drawnObjNum);
+
+                else
+                    iInc = 1;
+                jInc = (iInc * JMUL) % 256;
+//                        jInc = (jMul * (32 / Math.floor(drawnObjNum / 256))) % 256;
+//                        jInc  = (iInc * jMul)%256;
+//                        jInc = (jMul * Math.floor(drawnObjNum / 256)) % 256;
+
+                for (var n = 0; n < drawnObjNum; n++) {
+
+                    var x = Math.abs(Math.floor(getX(i, j)));
+                    var y = Math.abs(Math.floor(getY(i, j)));
+                    var sx = Math.abs(Math.floor(getXSize(i, j)));
+                    var sy = Math.abs(Math.floor(getYSize(i, j)));
+                    var red = Math.abs(Math.floor(getRed(i, j)));
+                    var green, blue;
+                    if (gray) {
+                        green = red;
+                        blue = red;
+                    } else {
+                        green = Math.abs(Math.floor(getGreen(i, j)));
+                        blue = Math.abs(Math.floor(getBlue(i, j)));
+                    }
+                    var shape = Math.abs(getShape(i, j) % 3);
+                    var color = "rgb(" + red + "," + green + "," + blue + ")";
+                    var angle = Math.abs(Math.floor(getRotation(i, j) * 360 / 256));
+                    var transform = "";
+                    if (rotate)
+                        transform = "rotate(" + angle + " " + Math.floor((x + sx) / 2) + " " + Math.floor((y + sy) / 2) + ")";
+                    //                logbox2.innerHTML += i+": x"+x+" y:"+y+" sx:"+sx+" sy:"+sy+" shp:"+shape+" col:"+color+"<br>";
+                    if (shape < 1.5)
+                        svgStrings[num] += "<rect x='" + x + "' y='" + y + "' width='" + sx + "' height='" + sy + "' style='fill:" + color + "' transform='" + transform + "'/>";
+//            drawRectangle(svg, x, y, sx, sy, color, transform);
+                    else
+                        svgStrings[num] += "<ellipse cx='" + x + "' cy='" + y + "' rx='" + sx + "' ry='" + sy + "' style='fill:" + color + "' transform='" + transform + "'/>";
+//                        drawEllipse(svg, x, y, sx, sy, color, transform);
+
+                    var i = (i + iInc) % 256;
+                    var j = (j + jInc) % 256;
+                }
+//                wrap.append(svg);
+                svgStrings[num] += "</svg>";
+                wrap.append(svgStrings[num]);
+//                wrap.append(encode_as_img_and_link2(svgStrings[num]));
+//                var b64 = window.btoa(serializer.serializeToString(document.getElementById("svg"+num)));
+//                $("#downButton"+num).attr({href: "data:application/octet-stream;charset=utf-8;base64,"+b64});
+            };
+
+            drawEllipse = function (svg, cx, cy, rx, ry, color, transform) {
+                var newEl = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+                newEl.setAttributeNS(null, "cx", cx);
+                newEl.setAttributeNS(null, "cy", cy);
+                newEl.setAttributeNS(null, "rx", rx);
+                newEl.setAttributeNS(null, "ry", ry);
+                newEl.setAttributeNS(null, "style", "fill:" + color);
+                newEl.setAttributeNS(null, "transform", transform);
+                //            svg.appendChild(newEl);
+                $(newEl).appendTo(svg);
+            };
+            ellipseString = function (cx, cy, rx, ry, color, transform) {
+//                var newEl = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+//                newEl.setAttributeNS(null, "cx", cx);
+//                newEl.setAttributeNS(null, "cy", cy);
+//                newEl.setAttributeNS(null, "rx", rx);
+//                newEl.setAttributeNS(null, "ry", ry);
+//                newEl.setAttributeNS(null, "style", "fill:" + color);
+//                newEl.setAttributeNS(null, "transform", transform);
+//                //            svg.appendChild(newEl);
+//                $(newEl).appendTo(svg);
+                return "<ellipse cx='" + cx + "' cy='" + cy + "' rx='" + rx + "' ry='" + ry + "' style='fill:" + color + "' transform='" + transform + "'></ellipse>";
+            };
+
+            drawRectangle = function (svg, x, y, sx, sy, color, transform) {
+                var newEl = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                newEl.setAttributeNS(null, "x", x);
+                newEl.setAttributeNS(null, "y", y);
+                newEl.setAttributeNS(null, "width", sx);
+                newEl.setAttributeNS(null, "height", sy);
+                newEl.setAttributeNS(null, "style", "fill:" + color);
+                newEl.setAttributeNS(null, "transform", transform);
+                //            svg.appendChild(newEl);
+                $(newEl).appendTo(svg);
+            };
+
+            rectangleString = function (x, y, sx, sy, color, transform) {
+                return "<rect x='" + x + "' y='" + y + "' width='" + sx + "' height='" + sy + "' style='fill:" + color + "' transform='" + transform + "'></rect>";
+            };
+
+            var serializer;
+
+            initialize = function () {
+//                alert("Program podporuje Firefox a Google Chrome. V ostatních prohlížečích nemusí fungovat.");
+                serializer = new XMLSerializer();
+//                $("#svg0").mouseover(function () {
+//                    $(".ico_wrap").stop(true).animate({opacity: 0.3}, 150);
+//                }).mouseout(function () {
+//                    $(".ico_wrap").stop(true).animate({opacity: 0}, 150);
+//                });
+//
+//                $(".ico_wrap").mouseover(function () {
+//                    $(this).stop(true).animate({opacity: 1}, 150);
+//                }).mouseout(function () {
+//                    $(this).stop(true).animate({opacity: 0}, 150);
+//                });
+//
+//                $("#helloA").click(function () {
+//                    alert("Hello World! I\'m A!");
+//                });
+//                $("#helloB").click(function () {
+//                    alert("Hello World! I\'m B!");
+//                });
+                var right = $("#right");
+                for (var i = 0; i < 9; i++) {
+//                    right.append("<div class='wrap' id='wrap" + i + "'><div class='innerWrap' id='innerWrap" + i + "'></div><div class='icoWrap' id='icoWrap" + i + "'><button id='downB" + i + "'>B</button></div></div>");
+                    var wrap = document.createElement("DIV");
+                    $(right).append(wrap);
+                    $(wrap).attr({id: "wrap" + i});
+                    $(wrap).addClass("wrap");
+                    var innerWrap = document.createElement("DIV");
+                    $(wrap).append(innerWrap);
+                    $(innerWrap).attr({id: "innerWrap" + i});
+                    $(innerWrap).addClass("innerWrap");
+                    var icoWrap = document.createElement("DIV");
+                    $(wrap).append(icoWrap);
+                    $(icoWrap).attr({id: "icoWrap" + i});
+                    $(icoWrap).addClass("icoWrap");
+//                    $(wrap).append("<div class='icoBack'></div>");
+                    var downButton = document.createElement("A");
+                    $(icoWrap).append(downButton);
+                    $(downButton).attr({id: "downButton" + i, title: "Stáhnout"});
+                    $(downButton).addClass("downButton");
+//                    $(downButton).text("Down");
+                    $(downButton).append("<img src='icons/save.png' alt='Stáhnout'>");
+                    $(icoWrap).append(document.createElement("BR"));
+                    var zoomButton = document.createElement("A");
+                    $(icoWrap).append(zoomButton);
+                    $(zoomButton).attr({id: "zoomButton" + i, title: "Zvětšit"});//, title: "cgp.svg",  hreflang: "image/svg+xml" ,download: "cgp.svg", filename: "cgp.svg"});//, download: "download", filename: "cgp.svg"});
+                    $(zoomButton).addClass("zoomButton");
+                    $(zoomButton).append("<img src='icons/zoom.png' alt='Zvětšit'>");
+
+                    $(innerWrap).mouseover(function () {
+//                        alert("wrapIn");
+//                        $("#red").attr({backgroundColor: "yellow"});
+                        $($(this).parent().children(".icoWrap")[0]).stop(true).animate({opacity: 0.3}, 150);
+                    }).mouseout(function () {
+                        ;
+//                        alert("wrapOut");
+//                        $("#red").attr({backgroundColor: "purple"});
+                        $($(this).parent().children(".icoWrap")[0]).stop(true).animate({opacity: 0}, 150);
+                    });
+
+                    $(icoWrap).mouseover(function () {
+//                        alert("icoIn");
+//                        $("#red").attr({backgroundColor: "red"});
+                        $(this).stop(true).animate({opacity: 1}, 150);
+                    }).mouseout(function () {
+//                        alert("icoOut");
+//                        $("#red").attr({backgroundColor: "blue"});
+                        $(this).stop(true).animate({opacity: 0.3}, 150);
+                    });
+
+                    $(downButton).click(function () {
+
+                        var b64 = window.btoa(serializer.serializeToString(document.getElementById("svg" + $(this).attr("id")[10])));
+//                $("#downButton"+$(this).attr("id")[10]).attr({href: "data:application/octet-stream;charset=utf-8;base64,"+b64});
+                        $(this).attr({href: "data:image/svg+xml;base64," + b64, download: "cgp.svg"});
+                    });
+                    $(zoomButton).click(function () {
+                        zoom($(this).attr("id")[10]);
+                    });
+
+
+
+//                    var wrap = document.createElement("DIV");
+//                    $(right).append(wrap);
+//                    $(wrap).attr({id: "wrap" + i});
+//                    $(wrap).addClass("wrap");
+//                    var inWrap = document.createElement("DIV");
+//                    $(wrap).append(inWrap);
+//                    $(inWrap).attr({id: "innerWrap" + i});
+//                    $(inWrap).addClass("innerWrap");
+                    
+                    
+//                    $("#shade").hide();
+//                    $("#zoomDiv").hide();
+//                    $("#downButtonZoom").click(function () {
+//
+//                        var b64 = window.btoa(serializer.serializeToString(document.getElementById("svg" + $(this).attr("id")[10])));
+////                $("#downButton"+$(this).attr("id")[10]).attr({href: "data:application/octet-stream;charset=utf-8;base64,"+b64});
+//                        $(this).attr({href: "data:image/svg+xml;base64," + b64, download: "cgp.svg"});
+//                    });
+                    
+                }
+                    $("#shade").click(function() {closeZoom();});
+                    $("#closeButtonZoom").click(function() {closeZoom();});
+                    $("#closeButtonInfo").click(function() {closeZoom();});
+                    $("#innerWrapZoom").mouseover(function () {
+//                        alert("wrapIn");
+//                        $("#red").attr({backgroundColor: "yellow"});
+                        $($(this).parent().children(".icoWrap")[0]).stop(true).animate({opacity: 0.3}, 150);
+                    }).mouseout(function () {
+                        ;
+//                        alert("wrapOut");
+//                        $("#red").attr({backgroundColor: "purple"});
+                        $($(this).parent().children(".icoWrap")[0]).stop(true).animate({opacity: 0}, 150);
+                    });
+
+                    $("#icoWrapZoom").mouseover(function () {
+//                        alert("icoIn");
+//                        $("#red").attr({backgroundColor: "red"});
+                        $(this).stop(true).animate({opacity: 1}, 150);
+                    }).mouseout(function () {
+//                        alert("icoOut");
+//                        $("#red").attr({backgroundColor: "blue"});
+                        $(this).stop(true).animate({opacity: 0.3}, 150);
+                    });
+                    
+                    $("#downButtonZoom").click(function () {
+
+                        var b64 = window.btoa(serializer.serializeToString(document.getElementById("svg" + zoomedIn)));
+//                $("#downButton"+$(this).attr("id")[10]).attr({href: "data:application/octet-stream;charset=utf-8;base64,"+b64});
+                        $(this).attr({href: "data:image/svg+xml;base64," + b64, download: "cgp.svg"});
+                    });
+                    
+                    $("#infoButton").click(function () {
+                        $("#infoDiv").show();
+                        $("#shade").show();
+                    });
+                    
+//                    $("#mutScaleIn").change(function() {
+//                        $("#speedDesc").text(speedDescs[$(this).val()-1]);
+//                    });
+                    $("#zoomDiv").css({left: (($(window).width()-$("#zoomDiv").width())/2)});
+                    $("#infoDiv").css({left: (($(window).width()-$("#infoDiv").width())/2)});
+                    
+            };
+            closeZoom = function () {
+                        $("#shade").hide();
+                        $("#zoomDiv").hide();
+                        $("#infoDiv").hide();
+                    };
+
+            function encode_as_img_and_link(svg) {
+                // Add some critical information
+//            var svg = $("#svg0");
+//            $(svg).attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg" , width: 256 , height: 256});
+//            serializer = new XMLSerializer();
+
+//            var toEncode = 
+//            var svg = $("#chart-canvas").html();
+                var b64 = window.btoa(serializer.serializeToString(svg)); // or use btoa if supported
+
+                // Works in recent Webkit(Chrome)
+//                return ($("<img src='data:image/svg+xml;base64,\n" + b64 + "' alt='file.svg'/>"));
+
+                // Works in Firefox 3.6 and Webit and possibly any browser which supports the data-uri
+                $("body").append($("<a href-lang='image/svg+xml' href='data:image/svg+xml;base64,\n" + b64 + "' title='file.svg'>Download</a>"));
+            }
+
+            function encode_as_img_and_link2(svgString) {
+                var b64 = window.btoa(svgString);
+                return ($("<img src='data:image/svg+xml;base64,\n" + b64 + "' alt='file.svg'/>"));
+            };
+
+            function zoom(num) {
+                $("#innerWrapZoom").empty().append(svgStrings[num]);
+                var svg = $("#innerWrapZoom").children("svg")[0];
+                $(svg).attr({width: 768, height: 768});// viewBox: "0 0 256 256"});
+                $("#zoomDiv").show();
+                $("#shade").show();
+                zoomedIn = num;
+            }
+            
+
+        </script>
+    </head>
+    <body>
+        <div id="all">
+            <div id="left">
+                <h1>Vektorové CGP</h1>
+                <div id="settings">
+                    <button id="infoButton">Info</button><br>
+                    <button id="startButton">Restart</button> <button id="redrawButton">Překreslit</button><br>
+                    <button id="backButton">Zpět</button><br>
+                    
+                    <span title="Udává potenciální změnu za 1 generaci">Variabilita:<span id="speedDesc"></span><br>
+                        </span>-<input id="mutScaleIn" type="range" value="4" min="1" max="5" step="1">+<br>
+                    <span title="Počet objektů generovaného SVG">Počet objektů: </span><select id="objectNumSelct">
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                        <option value="256">256</option>
+                        <option value="512" selected="selected">512</option>
+                        <option value="1024">1024</option>
+                        <option value="2048">2048</option>
+                        <!--                        <option value="4094">4094</option>
+                                                <option value="8192">8192</option>-->
+                    </select>
+                    <br>
+                    
+
+                    Rotace: <input type="checkbox" id="rotateCheck" checked ><br>
+                    Stupně šedi: <input type="checkbox" id="grayCheck" >
+                    <br><br>
+                    
+                    
+                    Číslo generace <span id="genIndexSpan" class="bold"></span><br>
+                    <hr>
+                    <span title="Projeví se po RESTARTu
+číslo 10-80">Počet nodů CGP </span><input id="numOfNodesIn" type="text" value="25" onClick="this.setSelectionRange(0, this.value.length)"><br>
+<!--                    <span title="konstanta použitá při generaci obrazu
+nízké hodnoty (většinou) vedou k plynulým přechodům
+číslo 1-32">y-Multiplikator </span><input id="yMulIn" type="text" value="3" onClick="this.setSelectionRange(0, this.value.length)"><br>-->
+                </div>
+                <br>
+
+                <!--<div id="logbox2"></div>-->   
+                <div id="logbox1"></div>
+            </div>
+            <div id="right">
+            </div>
+            <div id="zoomDiv">
+                <div id="innerWrapZoom" class="innerWrap"></div>
+                <div id="icoWrapZoom" class="icoWrap">
+                    <a class="closeButton" title="Zavřít" id="closeButtonZoom"><img src='icons/close.png' alt='Zavřít'></a>
+                    <br>
+                    <a class="downButton" title="Stáhnout" id="downButtonZoom"><img src='icons/save.png' alt='Stáhnout'></a>
+                </div>
+            </div>
+            <div id="infoDiv">
+                <a class="closeButton" title="Zavřít" id="closeButtonInfo"><img src='icons/close.png' alt='Zavřít'></a>
+                <h2>Vektorové CGP</h2>
+                <h3>Pavel Veselý</h3>
+                <p>Aplikace je praktickou částí mé bakalářské práce “Kartézské genetické programování v evolučním umění”.</p>
+                <p>Aplikace je určena pro PC, testovaná pro prohlížeče Google Chrome (42.0) a Mozilla Firefox (37.0).
+                    V jiné konfiguraci není garantováno standardní chování.</p>
+                <h3>O programu</h3>
+                <p>Vektorové CGP je aplikace pro tvorbu evolučního umění (co nejhezčích obrázků). Uživatel vytváří zajímavé
+                    obrázky postupnou selekcí. Začíná u náhodně vytvořených a výběrem nejlepšího směřuje vývoj k požadovanému cíli.</p>
+                <h3>Ovládání</h3>
+                <p>Levé kliknutí na obrázek ho vybere pro další evoluční krok.</p>
+                <p>Po najetí nad obrázek se zobrazí ikony pro zvětšení a uložení.</p>
+                <p>INFO zobrazí tento text.</p>
+                <p>RESTART zahodí veškerý postup a vygeneruje nový náhodný stav.</p>
+                <p>PŘEKRESLIT se používá po změně některých nastavení, aby byl vidět jejich efekt.</p>
+                <p>ZPĚT vrátí evoluci o 1 krok. Paměť pouze 1 krok, nedá se použít vícenásobně.</p>
+                <p>VARIABILITA určuje velikost změny za 1 evoluční krok.</p>
+                <p>POČET OBJEKTŮ určuje počet objektů, které se vykreslí v obrázcích. Nižší množství vede k jednodušším obrázkům
+                    s ostrými přechody, vyšší k pozvolnějším barevným přechodům, avšak zvyšuje výpočetní náročnost a dobu přechodu
+                    mezi generacemi. Projeví se po PŘEKRESLIT.</p>
+                <p>ROTACE povolí objektům rotovat. Projeví se po PŘEKRESLIT.</p>
+                <p>STUPNĚ ŠEDI přepnou vykreslování do šedé. Berou se pouze vstupy pro červenou složku, po přepnutí se může
+                    vzhled obrázku diametrálně změnit. Projeví se po PŘEKRESLIT.</p>
+                <p>ČÍSLO GENERACE udává počet evolučních kroků od náhodného startu.</p>
+                <h3>Pokročilé nastavení</h3>
+                <p>POČET NODŮ CGP určuje délku genotypu. Vyšší hodnota vede k vyšší složitosti funkcí, kterými jsou obrázky generovány,
+                    a vyšší výpočetní náročnosti. Povolené hodnoty 10-80. Projeví se po RESTART.</p>
+                    
+                    
+                <h3>Tipy</h3>
+                <p>Pokud nejste spokojení s žádným počátečním stavem, může pomoci několikrát zkusit RESTART.</p>
+                <p>Klik na ZPĚT a klik na stejný obrázek vygeneruje novou sadu potomků.</p>
+                
+               
+                
+            </div>
+            <div id="shade"></div>
+        </div>
+    </body>
+</html>
